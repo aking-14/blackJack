@@ -8,15 +8,15 @@ for playerCount in numOfPlayers:
     playerStayed = False
     while True:
         if playerCount <= 16:
-            break
             # deal
+            break
         elif playerCount <= 21:
             playerStayed = True
-            break
             # stay
-        else:
             break
+        else:
             # bust
+            break
     if playerStayed:
         # do something
     else:
