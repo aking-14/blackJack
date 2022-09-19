@@ -1,4 +1,12 @@
 import random
+import mysql.connector
+import matplotlib.pyplot as plt
+
+cnx = mysql.connector.connect(user='root', password='Ausjus1995', host='127.0.0.1', database='blackjack') 
+cursor = cnx.cursor()
+add_data_ko = ("Insert into KO " "(P1_wins, P1_losses, P2_wins, P2_losses) " "Values (%s, %s, %s, %s)")
+add_data_hilo = ("Insert into hilo " "(P1_wins, P1_losses, P2_wins, P2_lossess) " "Values (%s, %s, %s, %s)")
+
 cardCount = 0
 
 def dealCards(numberOfCards, deckOfCards, pointer, numOfPlayers, cardCount, strat):
@@ -77,22 +85,66 @@ def playGame(cardCount, winRate, strat):
     winRate[0][2] = False
     winRate[1][2] = False
 
+'''
+for j in range(1, 10):
+    cardCount = 0
+    winRate = [[0, 0, False], [0, 0, False]]
+    for i in range(1, 1000): #ko
+        playGame(cardCount, winRate, 7)
+    Win_Loss_Data = (winRate[0][0], winRate[0][1], winRate[1][0], winRate[1][1])
+    cursor.execute(add_data_ko, Win_Loss_Data)
+    cardCount = 0
+    winRate = [[0, 0, False], [0, 0, False]]
+    for i in range(1, 1000): #hilo
+        playGame(cardCount, winRate, 6)
+    Win_Loss_Data = (winRate[0][0], winRate[0][1], winRate[1][0], winRate[1][1])
+    cursor.execute(add_data_hilo, Win_Loss_Data)
 
-cardCount = 0
-winRate = [[0, 0, False], [0, 0, False]]
-for i in range(1, 1000):
-    playGame(cardCount, winRate, 7)
+cnx.commit()
+cursor.close()
+cnx.close()
+'''
+fig = plt.figure()
+ax = fig.add_axes([0,0,1,1])
+players = ['P1 Wins', 'P2 Wins', 'P1 Losses', 'P2 Losses']
+graphData = []
+dbValues = ["P1_wins", "P2_wins", "P1_losses", "P2_losses"]
+for val in dbValues:
+    cursor.execute("Select " + val + " from KO")
+    dbData = cursor.fetchall()
+    lengthData = len(dbData)
+    sumData = 0
+    for x in dbData:
+        sumData += x[0]
+    aveData = "{:.2f}".format(sumData/lengthData)
+    print(aveData)
+    graphData.append(aveData)
+ax.bar(players,graphData)
+#plt.show()
 
-print("KO PLAYER 1 had " + str(winRate[0][0]) + " favorable wins compared to " + str(winRate[0][1]) + " losses!")
-print("KO PLAYER 2 had " + str(winRate[1][0]) + " favorable wins compared to " + str(winRate[1][1]) + " losses!")
-
-cardCount = 0
-winRate = [[0, 0, False], [0, 0, False]]
-for i in range(1, 1000):
-    playGame(cardCount, winRate, 6)
-
-print("HILO PLAYER 1 had " + str(winRate[0][0]) + " favorable wins compared to " + str(winRate[0][1]) + " losses!")
-print("HILO PLAYER 2 had " + str(winRate[1][0]) + " favorable wins compared to " + str(winRate[1][1]) + " losses!")
-
-
+dbValues2 = ["P1_wins", "P2_wins", "P1_losses", "P2_lossess"]
+fig2 = plt.figure()
+ax2 = fig2.add_axes([0,0,1,1])
+graphDataHilo = []
+for val in dbValues2:
+    cursor.execute("Select " + val + " from hilo")
+    dbData = cursor.fetchall()
+    lengthData = len(dbData)
+    sumData = 0
+    for x in dbData:
+        sumData += x[0]
+    aveData = "{:.2f}".format(sumData/lengthData)
+    print(aveData)
+    graphDataHilo.append(aveData)
+ax2.bar(players,graphDataHilo)
+plt.show()
+'''
+fig = plt.figure()
+ax = fig.add_axes([0,0,1,1])
+langs = ['C', 'C++', 'Java', 'Python', 'PHP']
+students = [23,17,35,29,12]
+ax.bar(langs,students)
+plt.show()
+'''
+# format graph correctly
 # add logic to make players bet smarter, graph results, try to optimize win rate, create way to add more players and more decks of cards, let program tell us when the best time to bet or stay is
